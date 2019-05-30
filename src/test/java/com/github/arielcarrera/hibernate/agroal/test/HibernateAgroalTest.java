@@ -75,17 +75,24 @@ public class HibernateAgroalTest {
 
 	@Test
 	public void findByIdTest() {
+		AgroalDataSourceMetrics m = AgroalConnectionProvider.getMetrics();
+		long activeCount = m.activeCount();
 		Optional<TestEntity> op = service.findById(1);
 		assertNotNull(op);
 		assertTrue(op.isPresent());
 		assertTrue(op.get().getValue().equals(101));
+		assertTrue("activeCount <> 0", activeCount - m.activeCount() == 0);
 	}
 
 	@Test
 	public void getReferenceTest() {
+		AgroalDataSourceMetrics m = AgroalConnectionProvider.getMetrics();
+		long activeCount = m.activeCount();
+		
 		TestEntity p = service.getReference(1);
 		assertNotNull(p);
 		assertTrue(p.getValue().equals(101));
+		assertTrue("activeCount <> 0", activeCount - m.activeCount() == 0);
 	}
 
 }
