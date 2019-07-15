@@ -7,7 +7,6 @@ import io.agroal.api.AgroalDataSourceMetrics;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -33,7 +32,7 @@ public class HibernateAgroalTest {
 	@ClassRule public static JtaEnvironment jtaEnvironment = new JtaEnvironment();
 
 	@Rule public WeldInitiator weld = WeldInitiator.from(new Weld())
-			.activate(RequestScoped.class, ApplicationScoped.class).inject(this).build();
+			.activate(RequestScoped.class).inject(this).build();
 
 	@Rule public TestRule watcher = new TestWatcher() {
 		protected void starting(Description description) {
@@ -77,6 +76,7 @@ public class HibernateAgroalTest {
 	public void findByIdTest() {
 		AgroalDataSourceMetrics m = AgroalConnectionProvider.getMetrics();
 		long activeCount = m.activeCount();
+
 		Optional<TestEntity> op = service.findById(1);
 		assertNotNull(op);
 		assertTrue(op.isPresent());
@@ -88,10 +88,11 @@ public class HibernateAgroalTest {
 	public void getReferenceTest() {
 		AgroalDataSourceMetrics m = AgroalConnectionProvider.getMetrics();
 		long activeCount = m.activeCount();
-		
+//		entityManager.getTransaction().begin();
 		TestEntity p = service.getReference(1);
 		assertNotNull(p);
 		assertTrue(p.getValue().equals(101));
+//		entityManager.getTransaction().commit();
 		assertTrue("activeCount <> 0", activeCount - m.activeCount() == 0);
 	}
 

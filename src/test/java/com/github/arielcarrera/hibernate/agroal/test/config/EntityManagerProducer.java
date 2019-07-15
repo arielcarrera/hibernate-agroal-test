@@ -1,7 +1,7 @@
 package com.github.arielcarrera.hibernate.agroal.test.config;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Dependent;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Disposes;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
@@ -20,7 +20,7 @@ public class EntityManagerProducer {
     private EntityManagerFactory emf;
 
     @Produces
-    @Dependent
+    @RequestScoped
     public EntityManager produceEntityManager() {
         return emf.createEntityManager();
     }
