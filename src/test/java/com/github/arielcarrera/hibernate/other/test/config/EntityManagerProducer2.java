@@ -1,4 +1,4 @@
-package com.github.arielcarrera.hibernate.agroal.test.config;
+package com.github.arielcarrera.hibernate.other.test.config;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Disposes;
@@ -8,26 +8,28 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.transaction.TransactionScoped;
 
+import com.github.arielcarrera.hibernate.other.AlternativeEM;
+
 /**
  * EntityManager producer
  * @author Ariel Carrera <carreraariel@gmail.com>
  *
  */
 @ApplicationScoped
-public class EntityManagerProducer {
+public class EntityManagerProducer2 {
 
-    @Inject
-    private EntityManagerFactory emf;
     
-    @Produces
+    @Inject @AlternativeEM
+    private EntityManagerFactory emf2;
+
+    
+    @Produces @AlternativeEM
     @TransactionScoped
-    public EntityManager produceEntityManager() {
-        return emf.createEntityManager();
+    public EntityManager produceEntityManager2() {
+        return emf2.createEntityManager();
     }
 
-    public void close(@Disposes EntityManager em) {
+    public void close2(@Disposes @AlternativeEM EntityManager em) {
         em.close();
     }
-    
 }
-    
