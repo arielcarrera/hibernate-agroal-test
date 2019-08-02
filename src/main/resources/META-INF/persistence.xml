@@ -47,6 +47,7 @@
             <property name="hibernate.agroal.acquisitionTimeout" value="PT1s"/>
             <property name="hibernate.agroal.reapTimeout" value="PT10s"/>
             <property name="hibernate.agroal.metricsEnabled" value="true"/>
+            <property name="hibernate.transaction.jta.platform" value="JBossTS"/>
         </properties>
 
     </persistence-unit>
