@@ -1,6 +1,7 @@
 package com.github.arielcarrera.hibernate.agroal.test;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -51,14 +52,21 @@ public abstract class BaseTest {
             Transaction t = tm.suspend();
             tm.begin();
             try {
-        	try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;LOCK_MODE=3",
-        		null, null)) {
+        	try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;LOCK_MODE=3")) {
+        	    ResultSet r = connection.prepareStatement("SELECT COUNT(*) FROM PUBLIC.TESTENTITY ").executeQuery();
+        	    while (r.next()) {
+        		System.out.println(r.getLong(1));
+        	    }
+//        	    ResultSet r = connection.prepareStatement("SELECT * FROM INFORMATION_SCHEMA.TABLES").executeQuery();
+//        	    while (r.next()) {
+//        		System.out.println(r.getString("TABLE_SCHEMA") + "." + r.getString("TABLE_NAME"));
+//        	    }
         	    try (PreparedStatement statement = connection
-        		    .prepareStatement("SELECT `id`,`value` FROM `TestEntity` WHERE `id` = ?")) {
+        		    .prepareStatement("SELECT ID,VALUE FROM PUBLIC.TESTENTITY WHERE ID = ?")) {
         		statement.setInt(1, id);
         		try (ResultSet resultSet = statement.executeQuery()) {
         		    while (resultSet.next()) {
-        			return new TestEntity(resultSet.getInt("id"), resultSet.getInt("value"));
+        			return new TestEntity(resultSet.getInt("ID"), resultSet.getInt("VALUE"));
         		    }
         		}
         	    }
@@ -70,6 +78,7 @@ public abstract class BaseTest {
         	}
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             fail("Invalid Test JDBC Configuration");
         }
         return null;
@@ -92,7 +101,7 @@ public abstract class BaseTest {
     }
 
     @Test
-    public void updateTest_OK() throws Exception {
+    public void updateTest_failed() throws Exception {
         ut.begin();
         TestEntity e1 = getEntityManager().find(TestEntity.class, 1);
         e1.setValue(9999);
@@ -117,6 +126,26 @@ public abstract class BaseTest {
             throw t;
         }
         assertTrue(jdbcGetById(1).getValue() == 9999);
+    }
+    
+    @Test
+    public void delete_OK() throws Exception {
+        ut.begin();
+        TestEntity e1 = getEntityManager().find(TestEntity.class, 1);
+        getEntityManager().remove(e1);
+        ut.commit();
+        TestEntity op = jdbcGetById(1);
+        assertNull(op);
+    }
+    
+    @Test
+    public void deleteRollback_failed() throws Exception {
+        ut.begin();
+        TestEntity e1 = getEntityManager().find(TestEntity.class, 1);
+        getEntityManager().remove(e1);
+        ut.rollback();
+        TestEntity op = jdbcGetById(1);
+        assertNotNull(op);
     }
 
 }
